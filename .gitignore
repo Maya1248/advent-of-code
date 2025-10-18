@@ -1,0 +1,9 @@
+### Generated Linux binaries have no extensions
+# Ignore all
+*
+
+# Un-ignore all directories
+!*/
+
+# Un-ignore all file names with extensions
+!*.*
