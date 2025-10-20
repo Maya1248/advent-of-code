@@ -17,6 +17,7 @@ int get_volume(int l, int w, int h) {
 
 int main() {
     FILE *fptr = fopen("input", "r");
+    if (fptr == NULL) return 1;
 
     int l, w, h, result = 0;
     while (fscanf(fptr, "%dx%dx%d", &l, &w, &h) != EOF) {
