@@ -1,0 +1,19 @@
+The santa has a starting point and moves by 1 each time.
+Santa can come back to where ever he was as he chooses.
+
+We need to log the amount of places Santa has moved through,
+without duplicates.
+
+My solution to this is to imagine Santa standing at the center of a
+coordinate graph, at [0,0]. Then as Santa moves, we take each new 
+coordinate and check if its duplicate already exists in the array.
+
+If the duplicate exists, do not log, if it does not exist and this
+is in fact a new coordinate, do log it, add to the counter/result.
+
+Time complexity: O(n^2)
+As for simplicity I will be using the easy quadratic search for
+duplicates.
+In the future I intend to write a custom hashmap implementation
+exclusively for this very task, so to transform the time
+complexity into that of O(n) on average.
