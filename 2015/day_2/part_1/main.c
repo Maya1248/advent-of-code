@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int get_smallest_area(int l, int w, int h) {
+    // Describes surface areas
     int a1 = l*w;
     int a2 = w*h;
     int a3 = h*l;

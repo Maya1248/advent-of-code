@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int get_smallest_ribbon(int l, int w, int h) {
+    // Describes the length of the ribbons as they are pulled across all 3 possible sides around the cuboid
     int o1 = 2 * l + 2 * w;
     int o2 = 2 * l + 2 * h;
     int o3 = 2 * w + 2 * h;
