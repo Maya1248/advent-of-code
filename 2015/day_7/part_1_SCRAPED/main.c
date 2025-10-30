@@ -7,12 +7,16 @@
 
 #define CHUNK 64
 
-int fetch_number(int book_size, char book[book_size][CHUNK], char *wire) {
+unsigned short fetch_number(int book_size, char book[book_size][CHUNK], char *wire) {
     // Find where the wire is positioned as a destination
     // Then we back track to get the number
     // Of course it wont be just a number, but a whole circuit board of logic that we must follow
     // We will do exactly that here, go backwards through the logic gates until we finally reach actual hard numbers down the line
     // and work our way up. All of this done automatically via recursion.
+    unsigned short temp;
+    if (sscanf(wire, "%u", &temp) != 0) {
+        return temp;
+    }
 
     int white_space_count = 0;
     int pos, len, toggle;
@@ -53,23 +57,41 @@ int fetch_number(int book_size, char book[book_size][CHUNK], char *wire) {
             //printf("whitespace: %d\n", white_space_count);
             //printf("full: %s\n", book[index]);
             
-            int temp;
+            unsigned short temp, temp2; 
             char temp_buff[4];
+            char temp_buff_1[4];
+            char temp_buff_2[4];
             memset(temp_buff, 0, 4);
+            memset(temp_buff_1, 0, 4);
+            memset(temp_buff_2, 0, 4);
             switch (white_space_count) {
-                case 0: // variable -> destination ; Forward variable if variable, return number if its actual number
-                    if (sscanf(book[index], "%d ", &temp) != 0) { // IS a number
-                        return temp;
-                    }
-                    
+                case 0: // variable -> destination ; 
                     if (sscanf(book[index], "%s ", temp_buff) != 1) exit(ERROR);
-                    fetch_number(book_size, book, temp_buff); // isnt a number, instead follow piped variable by the book
+                    return fetch_number(book_size, book, temp_buff);
 
                     break;
-                case 1: // NOT variable -> destination ; Similar to before but now we have to perform a lot of OPERATOR handling...
-                
+                case 1: // NOT variable -> destination ; 
+                    if (sscanf(book[index], "%s ", temp_buff) != 1) exit(ERROR);
+                    return !fetch_number(book_size, book, temp_buff);
+
                     break;
-                case 2: // variable OP variable -> destination
+                case 2: // variable OPERATOR variable -> destination
+                    // OR, AND, LSHIFT, RSHIFT
+                    if (sscanf(book[index], "%s %s %s ", temp_buff_1, temp_buff, temp_buff_2) != 0) {
+                        if (strcmp(temp_buff, "OR") == 0) {
+                            return fetch_number(book_size, book, temp_buff_1) || fetch_number(book_size, book, temp_buff_2);
+
+                        } else if (strcmp(temp_buff, "AND") == 0) {
+                            return fetch_number(book_size, book, temp_buff_1) && fetch_number(book_size, book, temp_buff_2);
+
+                        } else if (strcmp(temp_buff, "LSHIFT") == 0) {
+                            return fetch_number(book_size, book, temp_buff_1) << fetch_number(book_size, book, temp_buff_2);
+                            
+                        } else if (strcmp(temp_buff, "RSHIFT") == 0) {
+                            return fetch_number(book_size, book, temp_buff_1) >> fetch_number(book_size, book, temp_buff_2);
+
+                        }
+                    }
 
                     break;
             }
