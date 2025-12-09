@@ -1,0 +1,9 @@
+main.c.bak
+It doesnt work, searching for biggest digits only... Doesnt work
+
+main.c2.bak
+Apparently brute forcing every single possible combination of digits in-order
+takes a LONG time.
+The only reason we went there is because.. Well i couldnt figure out any other way of solving this mathematically.
+Im giving up for now and moving onto other days/tasks
+Better to solve 8/10 tasks then to get stuck on the third one and proceed to not get Anything else done.

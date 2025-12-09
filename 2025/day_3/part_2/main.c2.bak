@@ -1,0 +1,160 @@
+#include <stdio.h>
+
+#define ERROR -1
+
+long long power_10(int num) {
+    if (num == 0) {
+        return (long long)1;
+    }
+
+    long long temp = 10;
+
+    for (int i = 0; i < num - 1; i++) {
+        temp *= 10;
+    }
+
+    return temp;
+}
+
+long long interpret_based_on_config(int BANK_SIZE, int bank_array[], int AGENT_COUNT, int digit_configuration[]) {
+    int counter = AGENT_COUNT - 1;
+    long long result = 0;
+
+    for (int i = 0; i < AGENT_COUNT; i++) {
+        result += power_10(counter) * (long long)bank_array[digit_configuration[i]];
+        counter--;
+    }
+
+    return result;
+}
+
+int advance_config(int AGENT_COUNT, int digit_configuration[], int BANK_SIZE, int bank_array[]) {
+    /*for (int i = 0; i < AGENT_COUNT; i++) {
+        printf("%d ", digit_configuration[i]);
+    }
+    printf("\n");*/
+
+
+    int digit_config_end[AGENT_COUNT];
+    int tmp = BANK_SIZE - 1;
+
+    for (int i = AGENT_COUNT - 1; i >= 0; i--) {
+        digit_config_end[i] = tmp;
+        tmp--; 
+    }
+
+    int last = AGENT_COUNT - 1;
+
+    while (digit_configuration[last] == digit_config_end[last]) {
+        last--;
+        if (last < 0) {
+            return ERROR;
+        }
+    }
+
+    if (last < 0) {
+        return ERROR;
+    }
+
+    digit_configuration[last]++;
+    
+    for (int i = last + 1; i < AGENT_COUNT; i++) {
+        digit_configuration[i] = digit_configuration[i - 1] + 1;
+    }
+
+    return 0;
+}
+
+int main() {
+    FILE *fptr = fopen("my_input", "r");
+    if (fptr == NULL) return ERROR;
+
+    // Adaptable bank_size calculation
+    int BANK_SIZE = 0;
+    char buffer;
+    while (fscanf(fptr, "%c", &buffer) != EOF) {
+        if (buffer == '\n') {
+            break;
+        }
+        BANK_SIZE++;
+    }
+    rewind(fptr);
+    //printf("bank size: %d\n", BANK_SIZE);
+
+    int bank_array[BANK_SIZE];
+    int counter = 0;
+
+    long long result = 0;
+
+    // Amount of "biggest" agents/numbers to be found within each bank.
+    int AGENT_COUNT = 12;
+    if (AGENT_COUNT > BANK_SIZE) {
+        printf(">:(\n");
+
+        fclose(fptr);
+        return ERROR;
+    }
+    
+    // Store values into an integer array
+    // Perform per line arithmetic
+    // We are brute forcing, because i cant find the solution on how to deal with duplicate meddling in large agents...
+    int digit_configuration[AGENT_COUNT];
+
+    while (fscanf(fptr, "%c", &buffer) != EOF) {
+        if (buffer == '\n') {
+            // RE-SET
+            for (int i = 0; i < AGENT_COUNT; i++) {
+                digit_configuration[i] = i;
+            }
+            counter = 0;
+            long long bank_number = 0;
+
+            // -- Acceleration module
+            // Find biggest digit
+            int biggest_digit = 0;
+            for (int i = 0; i < BANK_SIZE; i++) {
+                if (biggest_digit < bank_array[i]) {
+                    biggest_digit = bank_array[i];
+                }
+            }
+            // Fetch first occurence
+            int first_occurence_index = 0;
+            for (int i = 0; i < BANK_SIZE; i++) {
+                if (bank_array[i] = biggest_digit) {
+                    first_occurence_index = i;
+                    break;
+                }
+            }
+            // Rig config so it starts from found digit, if possible.
+            if ((first_occurence_index + AGENT_COUNT) < BANK_SIZE) {
+                digit_configuration[0] = first_occurence_index;
+            }
+            
+            int err = 0;
+            long long biggest = 0;
+
+            while (err != ERROR) {
+                bank_number = interpret_based_on_config(BANK_SIZE, bank_array, AGENT_COUNT, digit_configuration);
+                //printf("Bank number interpretation: %lli\n", bank_number);
+
+                if (biggest < bank_number) {
+                    biggest = bank_number;
+                }
+
+                err = advance_config(AGENT_COUNT, digit_configuration, BANK_SIZE, bank_array);
+
+            }
+            printf("%lli\n", biggest);
+            result += biggest;
+
+        } else {
+            bank_array[counter] = buffer - '0';
+            counter++;
+        }
+    }
+
+    printf("Result: %lli\n", result);
+
+    fclose(fptr);
+    return 0;
+}

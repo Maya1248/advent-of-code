@@ -1,0 +1,111 @@
+#include <stdio.h>
+
+#define ERROR -1
+
+long long power_10(int num) {
+    if (num == 0) {
+        return (long long)1;
+    }
+
+    long long temp = 10;
+
+    for (int i = 0; i < num - 1; i++) {
+        temp *= 10;
+    }
+
+    return temp;
+}
+
+int main() {
+    FILE *fptr = fopen("my_input", "r");
+    if (fptr == NULL) return ERROR;
+
+    // Adaptable bank_size calculation
+    int BANK_SIZE = 0;
+    char buffer;
+    while (fscanf(fptr, "%c", &buffer) != EOF) {
+        if (buffer == '\n') {
+            break;
+        }
+        BANK_SIZE++;
+    }
+    rewind(fptr);
+
+    int bank_array[BANK_SIZE];
+    int biggest_array[BANK_SIZE];
+
+    int counter = 0;
+    int biggest_counter = 0;
+
+    long long result = 0;
+
+    // Amount of "biggest" agents/numbers to be found within each bank.
+    int AGENT_COUNT = 12;
+    if (AGENT_COUNT > BANK_SIZE) {
+        printf(">:(\n");
+
+        fclose(fptr);
+        return ERROR;
+    }
+    
+    // Store values into an integer array
+    while (fscanf(fptr, "%c", &buffer) != EOF) {
+        if (buffer == '\n') {
+            // Reset biggest array
+            for (int i = 0; i < BANK_SIZE; i++) {
+                biggest_array[i] = -1;
+            }
+
+            // Reset counters
+            counter = 0;
+            biggest_counter = 0;
+
+            // Dynamically allocate biggest found values to their own respective array for easy handling
+            for (int i = 0; i < AGENT_COUNT; i++) {
+                // Find biggest
+                int biggest = 0;
+                int biggest_index = 0;
+                for (int j = 0; j < BANK_SIZE; j++) {
+                    if (bank_array[j] > biggest) {
+                        biggest = bank_array[j];
+                        biggest_index = j;
+                    }
+                }
+
+                // Erase found value from original array to allow for finding of OTHER "biggest" values.
+                bank_array[biggest_index] = -1;
+
+                // Store biggest value
+                biggest_array[biggest_index] = biggest;
+                // Duplicates cause a shit ton of issues...
+                printf("debug: %d : %d \n", biggest_index, biggest_array[biggest_index]);
+            }
+
+            // Count how many have been found
+            for (int i = 0; i < BANK_SIZE; i++) {
+                if (biggest_array[i] != -1) {
+                    biggest_counter++;
+                }
+            }
+
+            // Perform arithmetic on said values, in order
+            for (int i = 0; i < BANK_SIZE; i++) {
+                if (biggest_array[i] != -1) {
+
+                    result += (long long)biggest_array[i] * power_10(biggest_counter - 1);
+                    biggest_counter--;
+                    //printf("%lli \n", result);
+                }
+            }
+
+        } else {
+            bank_array[counter] = buffer - '0';
+            counter++;
+        }
+    }
+
+    printf("Result: %lli\n", result);
+
+    fclose(fptr);
+    return 0;
+}
